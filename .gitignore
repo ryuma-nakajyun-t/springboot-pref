@@ -1,24 +1,57 @@
-# Compiled class file
-*.class
+# ===== Build artifacts =====
+target/
+build/
+out/
+bin/
 
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# ===== Spring Boot =====
 *.jar
 *.war
-*.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# ===== Logs =====
+*.log
+
+# ===== Maven =====
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== Gradle =====
+.gradle/
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Secrets =====
+*.pem
+*.key
+*.crt
+*.p12
+*.der
+
+# ===== Spring Profiles =====
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+
+# ===== Test =====
+coverage/
+*.exec
+
+# ===== Generated =====
+generated/
+
+# ===== Temporary =====
+*.tmp
+*.swp
+*.bak
+
+# ===== Notes =====
+*.txt
