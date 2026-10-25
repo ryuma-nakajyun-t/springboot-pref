@@ -157,10 +157,50 @@ TBA
 ### ディレクトリ構成
 現状ディレクトリ階層を確認
 ```bash
-$ tree 
+$ tree springboot-pref/
 ``` 
 ```text
+springboot-pref/
+├── README.md
+├── docs
+│   └── create-springboot-pref-memo.md
+├── pom.xml
+├── src
+│   └── main
+│       ├── java
+│       │   └── com
+│       │       └── example
+│       │           └── pref
+│       │               ├── PrefApplication.java
+│       │               └── controller
+│       │                   └── PerfController.java
+│       └── resources
+│           ├── static
+│           │   └── style.css
+│           └── templates
+│               └── index.html
+└── target
+    ├── classes
+    │   ├── com
+    │   │   └── example
+    │   │       └── pref
+    │   │           ├── PrefApplication.class
+    │   │           └── controller
+    │   │               └── PerfController.class
+    │   ├── static
+    │   │   └── style.css
+    │   └── templates
+    │       └── index.html
+    ├── generated-sources
+    │   └── annotations
+    └── maven-status
+        └── maven-compiler-plugin
+            └── compile
+                └── default-compile
+                    ├── createdFiles.lst
+                    └── inputFiles.lst
 
+26 directories, 13 files    
 ```
 
 ### 学び・気づき

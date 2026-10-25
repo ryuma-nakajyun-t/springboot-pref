@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class PerfController {
 
-    @GetMapping("/hello")
+    @GetMapping("/index")
     public String hello(Model model) {
 
-        model.addAttribute("message", "Hello Spring Boot!");
-
-        return "hello";
+        model.addAttribute("message", "Hello Pref!");
+        
+        return "index";
     }
 }
