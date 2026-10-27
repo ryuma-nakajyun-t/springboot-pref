@@ -3,11 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Pref</title>
+    <link th:href="@{/css/style.css}" rel="stylesheet" type="text/css">
+</head>
+
+<title>Pref</title>
 </head>
 
 <body>
     <h1 th:text="${message}">sample</h1>
+    <table>
+        <tr>
+            <th>自治体コード</th>
+            <th>都道府県名</th>
+            <th>市区名</th>
+            <th>緯度(北緯)[60進数]</th>
+            <th>経度(東経)[60進数]</th>
+        </tr>
+        <tr th:each="pref:${prefList}">
+            <td th:text="${pref.prefCode}"></td>
+            <td th:text="${pref.prefName}"></td>
+            <td th:text="${pref.cityName}"></td>
+            <td th:text="${pref.latitude}"></td>
+            <td th:text="${pref.longitude}"></td>
+        </tr>
+    </table>
 </body>
 
 </html>

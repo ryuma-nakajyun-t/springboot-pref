@@ -1,0 +1,269 @@
+package com.example.pref.service;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * @author R.Nakajyun
+ *
+ * @version 1.0
+ */
+public class PrefService {
+
+    // トレースID
+    private static final String TRACE_ID = "TRC-" + System.currentTimeMillis();
+
+    // クラス名
+    private static final String CLASS_NAME = Main.class.getSimpleName();
+
+    // 現在のメソッド
+    private static final int METHOD_NUM = 1; // TODO:AIより、これは廃止にすべき。理由はまだ追えていない
+
+    // CSVファイルカラム区切り記号
+    private static final String SEPARATOR = ",";
+
+    // 60進数での最小値と最大値
+    // 秒の最小値
+    private static final int MIN_SECOND = 0;
+
+    // 秒の最大値
+    private static final int MAX_SECOND = 59;
+
+    // 分の最小値
+    private static final int MIN_MINUTE = 0;
+    
+    // 分の最大値
+    private static final int MAX_MINUTE = 59;
+
+    /**
+     * mainメソッド
+     *
+     * @param args 起動引数
+     */
+    public static void createPrefList(String prefFile) {
+
+        String methodName = null;
+
+        try {
+            methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
+            Logger.info(TRACE_ID, "AP-0001", CLASS_NAME, methodName, "処理開始");
+
+            // 引数チェック
+            if (args.length != 1) {
+                Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "引数チェックNG args.length=" + args.length);
+                throw new IllegalArgumentException("引数チェックNG args.length=" + args.length);
+            }
+
+            Logger.debug(TRACE_ID, "AP-0002", CLASS_NAME, methodName, "入力ファイル=" + prefFile);
+
+            outPrint(inputPrefData(prefFile));
+
+            Logger.info(TRACE_ID, "AP-0005", CLASS_NAME, methodName, "処理終了");
+
+        } catch (IllegalArgumentException e) {
+            Logger.error(TRACE_ID, "AP-9001", CLASS_NAME, methodName, "入力チェックエラー", e);
+        } catch (Exception e) {
+            Logger.error(TRACE_ID, "AP-9999", CLASS_NAME, methodName, "予期しないエラー", e);
+        }
+    }
+
+    /**
+     * inputPrefDataメソッド
+     * 指定したファイルから項目を都道府県リストに追加
+     * 
+     * @param fileName ファイルフルパス(ファイル名含む)
+     * @return prefList
+     */
+    private static List<Pref> inputPrefData(
+            String fileName) throws IOException {
+
+        String methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
+
+        // 引数チェック
+        // 引数がnull または 空のチェック
+        if (fileName == null || fileName.isBlank()) {
+            Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "引数チェックNG fileName=" + fileName);
+            throw new IllegalArgumentException("引数が不正です。" + fileName);
+        }
+
+        // ファイル読み込みチェックを実行して、
+        // ファイルが存在無しの場合または権限チェックで異常の場合は、異常とする。
+        File file = new File(fileName);
+        if (!file.exists()) {
+            Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "ファイルが存在しません。fileName=" + fileName);
+            throw new FileNotFoundException("ファイルが存在しません。fileName=" + fileName);
+        }
+
+        String csvRecord = null;
+        // ヘッダ判定用変数[true:ヘッダ未判定,false:ヘッダ判定済み]
+        boolean isCsvHeader = true;
+
+        // ファイル読み込みのヘッダ行の判定を実行して、カラム名の場合はスキップする
+        List<Pref> prefList = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            while ((csvRecord = br.readLine()) != null) {
+                if (isCsvHeader) {
+                    isCsvHeader = false;
+                    continue;
+                }
+
+                // -1 で末尾の空欄も保持
+                // カラム数のチェック
+                String[] prefCols = csvRecord.split(SEPARATOR, -1);
+                if (prefCols.length != CsvConst.COLUMN_COUNT) {
+                    Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "CSVフォーマット不正:csvRecord=" + csvRecord);
+                    throw new IOException("CSVフォーマット不正:csvRecord=" + csvRecord);
+                }
+                prefList.add(createPref(prefCols));
+            }
+
+            return prefList;
+        }
+    }
+
+    /**
+     * outPrintメソッド
+     * 各都道府県の下記リストの項目を標準出力する。
+     * ・自治体コード
+     * ・都道府県名
+     * ・市区名
+     * ・緯度(北緯)[60進数]
+     * ・経度(東経)[60進数]
+     * 
+     * @param prefList 都道府県リスト
+     * @return -
+     */
+    private static void outPrint(
+            List<Pref> prefList) throws IllegalArgumentException {
+
+        String methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
+
+        // 引数チェック
+        if (prefList.isEmpty()) {
+            Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "引数チェックNG prefList.size=" + prefList.size());
+            throw new IllegalArgumentException("データが0件です。prefList.size=" + prefList.size());  // TODO:場合によりけり、データが0件の場合でも処理継続も有かも。 なにが0件なのか？
+        }
+
+        int debugCount = 1;
+        Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "都道府県情報出力開始");
+        for (Pref pref : prefList) {
+            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "カウント:[" + debugCount + "]回目");
+            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "都道府県コード:" + String.format("%02d", Integer.parseInt(pref.getPrefCode())));
+            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "都道府県名:" + pref.getPrefName());
+            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "市区名:" + pref.getCityName());
+            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "緯度[10進数]:" + dmsToDecimal(pref.getLatitude()));
+            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "経度[10進数]:" + dmsToDecimal(pref.getLongitude()));
+            debugCount++;
+        }
+        Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "都道府県情報出力終了総件数:[" + debugCount + "]件");
+
+    }
+
+    /**
+     * createPrefメソッド
+     * 各都道府県の下記リストの項目を作成する。
+     * ・自治体コード
+     * ・都道府県名
+     * ・市区名
+     * ・緯度(北緯)[60進数]
+     * ・経度(東経)[60進数]
+     * 
+     * @param cols 都道府県配列
+     * @return pref
+     */
+    private static Pref createPref(
+            String[] cols) {
+
+        String methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
+
+        // TODO: インデックスよりも連想配列もいいね。
+        // →AI回答→あまりこの場合はあまりよろしくないらしい。
+        Pref pref = new Pref();
+        pref.setPrefCode(cols[CsvConst.PREF_CODE]); // 自治体コード
+        pref.setPrefName(cols[CsvConst.PREF_NAME]);// 都道府県名
+        pref.setCityName(cols[CsvConst.CITY_NAME]);// 市区名
+        pref.setLatitude(cols[CsvConst.LATITUDE]);// 緯度（北緯）[60進数]
+        pref.setLongitude(cols[CsvConst.LONGITUDE]);// 経度（東経）[60進数]
+
+        return pref;
+    }
+
+    /**
+     * dmsToDecimalメソッド
+     * DMS形式(度分秒)を10進数へ変換する
+     *
+     * @param dms DMS文字列（例: 34°23′15″）
+     * @return 10進数
+     * @throws IllegalArgumentException 引数不正の場合
+     */
+    private static double dmsToDecimal(
+            String dms)
+            throws IllegalArgumentException {
+
+        String methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
+        Logger.info(TRACE_ID, "AP-1000", CLASS_NAME, methodName, "DMS変換開始 dms=" + dms);
+
+        // 引数チェック
+        if (dms == null || dms.isEmpty()) {
+            Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "引数チェックNG dms=" + dms);
+            throw new IllegalArgumentException("引数チェックNG dms=" + dms);
+        }
+
+        // 前後の空白を除去
+        dms = dms.trim();
+        // DMS形式チェック
+        Pattern pattern = Pattern.compile("(\\d+)°(\\d+)′(\\d+)″");
+        Matcher matcher = pattern.matcher(dms);
+        if (!matcher.matches()) {
+            Logger.warn(TRACE_ID, "AP-1002", CLASS_NAME, methodName, "DMS形式不正 dms=" + dms);
+            throw new IllegalArgumentException("DMS形式不正 dms=" + dms);
+        }
+        String[] parts = dms
+                .replace("°", " ")
+                .replace("′", " ")
+                .replace("″", "")
+                .trim()
+                .split("\\s+");
+
+        if (parts.length != 3) {
+            Logger.warn(TRACE_ID, "AP-1003", CLASS_NAME, methodName, "DMS分解結果不正 length=" + parts.length);
+            throw new IllegalArgumentException("DMS分解結果不正 length=" + parts.length);
+        }
+
+        int degree = Integer.parseInt(parts[0]);
+        int minute = Integer.parseInt(parts[1]);
+        int second = Integer.parseInt(parts[2]);
+
+        Logger.debug(TRACE_ID, "AP-1004", CLASS_NAME, methodName,
+                String.format("DMS分解結果 degree=%d minute=%d second=%d", degree, minute, second));
+
+        // 分・秒範囲チェック
+        // 分
+        if (minute < MIN_MINUTE  || minute > MAX_MINUTE ) {
+            Logger.warn(TRACE_ID, "AP-1005", CLASS_NAME, methodName, "分が範囲外 minute=" + minute);
+            throw new IllegalArgumentException("分が範囲外 minute=" + minute);
+        }
+        // 秒
+        if (second < MIN_SECOND || second > MAX_SECOND) {
+            Logger.warn(TRACE_ID, "AP-1006", CLASS_NAME, methodName, "秒が範囲外 second=" + second);
+            throw new IllegalArgumentException("秒が範囲外 second=" + second);
+        }
+
+        double ret = degree
+                + (double) minute / 60
+                + (double) second / 3600;
+
+        Logger.info(TRACE_ID, "AP-1007", CLASS_NAME, methodName, "DMS変換終了 result=" + ret);
+
+        return ret;
+    }
+}

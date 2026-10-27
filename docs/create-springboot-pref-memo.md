@@ -58,7 +58,7 @@ touch springboot-pref/src/main/resources/static/style.css
 ```bash 
 touch springboot-pref/pom.xml
 ```
-touch springboot-pref/  
+springboot-pref/  
 pom.xml
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -133,7 +133,9 @@ public class PerfController {
 
     @GetMapping("/index")
     public String hello(Model model) {
+
         model.addAttribute("message", "Hello Pref!");
+        
         return "index";
     }
 }
@@ -146,7 +148,7 @@ mvn spring-boot:run
 ### 動作確認  
 別ターミナル
 ```bash
-TBA
+curl http://localhost:8080/index
 ```
 
 ### 結果  
