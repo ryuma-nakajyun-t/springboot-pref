@@ -1,6 +1,5 @@
 package com.example.pref.controller;
 
-
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -23,7 +22,7 @@ public class PerfController {
     public String hello(Model model) {
 
         model.addAttribute("message", "Hello Pref!");
-        String filePath = "/home/ryuma/dev/springboot-pref/src/main/resources/data/pref.csv";
+        String filePath = System.getenv("DATA_DIR") + "/pref.csv";
         List<Pref> prefList = service.createPrefList(filePath);
         model.addAttribute("prefList", prefList);
         return "index";
