@@ -1,7 +1,5 @@
 package com.example.pref.service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,24 +10,31 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author R.Nakajyun
- *
- * @version 1.0
- */
+import org.springframework.stereotype.Service;
+
+import com.example.pref.PrefConst.CsvConst;
+import com.example.pref.common.Logger;
+import com.example.pref.model.Pref;
+
+@Service
 public class PrefService {
 
     // トレースID
     private static final String TRACE_ID = "TRC-" + System.currentTimeMillis();
 
     // クラス名
-    private static final String CLASS_NAME = Main.class.getSimpleName();
+    private static final String CLASS_NAME = PrefService.class.getSimpleName();
 
     // 現在のメソッド
     private static final int METHOD_NUM = 1; // TODO:AIより、これは廃止にすべき。理由はまだ追えていない
 
     // CSVファイルカラム区切り記号
     private static final String SEPARATOR = ",";
+
+    // DMS文字列
+    private static final String DMS_DO = "°";
+    private static final String DMS_minute = "′";
+    private static final String DMS_second = "″";
 
     // 60進数での最小値と最大値
     // 秒の最小値
@@ -45,27 +50,27 @@ public class PrefService {
     private static final int MAX_MINUTE = 59;
 
     /**
-     * mainメソッド
+     * createPrefListメソッド
      *
-     * @param args 起動引数
+     * @param prefFile ファイルフルパス(ファイル名含む)
      */
-    public static void createPrefList(String prefFile) {
+    public List<Pref> createPrefList(String prefFile) {
 
         String methodName = null;
-
+        List<Pref> prefList = null;
         try {
             methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
             Logger.info(TRACE_ID, "AP-0001", CLASS_NAME, methodName, "処理開始");
 
             // 引数チェック
-            if (args.length != 1) {
-                Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "引数チェックNG args.length=" + args.length);
-                throw new IllegalArgumentException("引数チェックNG args.length=" + args.length);
+            if (prefFile == null) {
+                Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "引数チェックNG prefFile=null");
+                throw new IllegalArgumentException("引数チェックNG prefFile");
             }
 
             Logger.debug(TRACE_ID, "AP-0002", CLASS_NAME, methodName, "入力ファイル=" + prefFile);
 
-            outPrint(inputPrefData(prefFile));
+            prefList = inputPrefData(prefFile);
 
             Logger.info(TRACE_ID, "AP-0005", CLASS_NAME, methodName, "処理終了");
 
@@ -74,6 +79,7 @@ public class PrefService {
         } catch (Exception e) {
             Logger.error(TRACE_ID, "AP-9999", CLASS_NAME, methodName, "予期しないエラー", e);
         }
+        return prefList;
     }
 
     /**
@@ -131,44 +137,6 @@ public class PrefService {
     }
 
     /**
-     * outPrintメソッド
-     * 各都道府県の下記リストの項目を標準出力する。
-     * ・自治体コード
-     * ・都道府県名
-     * ・市区名
-     * ・緯度(北緯)[60進数]
-     * ・経度(東経)[60進数]
-     * 
-     * @param prefList 都道府県リスト
-     * @return -
-     */
-    private static void outPrint(
-            List<Pref> prefList) throws IllegalArgumentException {
-
-        String methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
-
-        // 引数チェック
-        if (prefList.isEmpty()) {
-            Logger.warn(TRACE_ID, "AP-1001", CLASS_NAME, methodName, "引数チェックNG prefList.size=" + prefList.size());
-            throw new IllegalArgumentException("データが0件です。prefList.size=" + prefList.size());  // TODO:場合によりけり、データが0件の場合でも処理継続も有かも。 なにが0件なのか？
-        }
-
-        int debugCount = 1;
-        Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "都道府県情報出力開始");
-        for (Pref pref : prefList) {
-            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "カウント:[" + debugCount + "]回目");
-            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "都道府県コード:" + String.format("%02d", Integer.parseInt(pref.getPrefCode())));
-            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "都道府県名:" + pref.getPrefName());
-            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "市区名:" + pref.getCityName());
-            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "緯度[10進数]:" + dmsToDecimal(pref.getLatitude()));
-            Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "経度[10進数]:" + dmsToDecimal(pref.getLongitude()));
-            debugCount++;
-        }
-        Logger.debug(TRACE_ID, "AP-xxxx", CLASS_NAME, methodName, "都道府県情報出力終了総件数:[" + debugCount + "]件");
-
-    }
-
-    /**
      * createPrefメソッド
      * 各都道府県の下記リストの項目を作成する。
      * ・自治体コード
@@ -191,8 +159,12 @@ public class PrefService {
         pref.setPrefCode(cols[CsvConst.PREF_CODE]); // 自治体コード
         pref.setPrefName(cols[CsvConst.PREF_NAME]);// 都道府県名
         pref.setCityName(cols[CsvConst.CITY_NAME]);// 市区名
-        pref.setLatitude(cols[CsvConst.LATITUDE]);// 緯度（北緯）[60進数]
-        pref.setLongitude(cols[CsvConst.LONGITUDE]);// 経度（東経）[60進数]
+
+        // pref.setLatitude( cols[CsvConst.LATITUDE]);// 緯度（北緯）[60進数]
+        pref.setLatitude(Double.toString(dmsToDecimal(cols[CsvConst.LATITUDE])));// 緯度（北緯）[10進数]
+
+        // pref.setLongitude(cols[CsvConst.LONGITUDE]);// 経度（東経）[60進数]
+        pref.setLongitude(Double.toString(dmsToDecimal(cols[CsvConst.LONGITUDE])));// 緯度（北緯）[10進数]
 
         return pref;
     }
@@ -208,7 +180,9 @@ public class PrefService {
     private static double dmsToDecimal(
             String dms)
             throws IllegalArgumentException {
-
+        
+        // TODO:Bigdecimal
+        // TODO:画面表示が前提ならわざわざ型変換の必要あるか？
         String methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
         Logger.info(TRACE_ID, "AP-1000", CLASS_NAME, methodName, "DMS変換開始 dms=" + dms);
 
@@ -220,6 +194,7 @@ public class PrefService {
 
         // 前後の空白を除去
         dms = dms.trim();
+
         // DMS形式チェック
         Pattern pattern = Pattern.compile("(\\d+)°(\\d+)′(\\d+)″");
         Matcher matcher = pattern.matcher(dms);
@@ -227,6 +202,7 @@ public class PrefService {
             Logger.warn(TRACE_ID, "AP-1002", CLASS_NAME, methodName, "DMS形式不正 dms=" + dms);
             throw new IllegalArgumentException("DMS形式不正 dms=" + dms);
         }
+        
         String[] parts = dms
                 .replace("°", " ")
                 .replace("′", " ")
