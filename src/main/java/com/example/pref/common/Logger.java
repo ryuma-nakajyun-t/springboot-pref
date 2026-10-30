@@ -59,7 +59,6 @@ public final class Logger {
 	 * @param message    出力メッセージ
 	 */
 	public static void info(String traceId, String messageId, String className, String methodName, String message) {
-
 		write(INFO, traceId, messageId, className, methodName, message, null);
 	}
 

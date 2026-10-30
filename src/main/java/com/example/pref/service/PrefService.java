@@ -40,17 +40,17 @@ public class PrefService {
 	private static final String DMS_FMT_PATTERN = "(\\\\d+)°(\\\\d+)′(\\\\d+)″";
 
 	// 60進数での最小値と最大値
-	// 秒の最小値
-	private static final int MIN_SECOND = 0;
-
-	// 秒の最大値
-	private static final int MAX_SECOND = 59;
-
 	// 分の最小値
 	private static final int MIN_MINUTE = 0;
 
 	// 分の最大値
 	private static final int MAX_MINUTE = 59;
+
+	// 秒の最小値
+	private static final int MIN_SECOND = 0;
+
+	// 秒の最大値
+	private static final int MAX_SECOND = 59;
 
 	/**
 	 * createPrefListメソッド
@@ -138,19 +138,13 @@ public class PrefService {
 	}
 
 	/**
-	 * createPrefメソッド 各都道府県の下記リストの項目を作成する。
-	 * ・自治体コード 
-	 * ・都道府県名 
-	 * ・市区名 
-	 * ・緯度(北緯)[60進数]
+	 * createPrefメソッド 各都道府県の下記リストの項目を作成する。 ・自治体コード ・都道府県名 ・市区名 ・緯度(北緯)[60進数]
 	 * ・経度(東経)[60進数]
 	 * 
 	 * @param cols 都道府県配列
 	 * @return pref
 	 */
 	private static Pref createPref(String[] cols) {
-
-		String methodName = Thread.currentThread().getStackTrace()[METHOD_NUM].getMethodName();
 
 		// TODO: インデックスよりも連想配列もいいね。
 		// →AI回答→あまりこの場合はあまりよろしくないらしい。
@@ -200,7 +194,7 @@ public class PrefService {
 			throw new IllegalArgumentException("DMS形式不正 dms=" + dms);
 		}
 
-		String[] parts = dms.replace(DMS_DEGRESS, " ").replace(DMS_MINUTES, " ").replace(DMS_SECONDS, "").trim()
+		String[] parts = dms.replace(DMS_DEGRESS, " ").replace(DMS_MINUTES, " ").replace(DMS_SECONDS, " ").trim()
 				.split("\\s+");
 
 		if (parts.length != 3) {
