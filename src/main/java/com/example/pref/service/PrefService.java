@@ -36,6 +36,9 @@ public class PrefService {
 	private static final String DMS_MINUTES = "′";
 	private static final String DMS_SECONDS = "″";
 
+	// DMSフォーマットパターン
+	private static final String DMS_FMT_PATTERN = "(\\\\d+)°(\\\\d+)′(\\\\d+)″";
+
 	// 60進数での最小値と最大値
 	// 秒の最小値
 	private static final int MIN_SECOND = 0;
@@ -135,7 +138,11 @@ public class PrefService {
 	}
 
 	/**
-	 * createPrefメソッド 各都道府県の下記リストの項目を作成する。 ・自治体コード ・都道府県名 ・市区名 ・緯度(北緯)[60進数]
+	 * createPrefメソッド 各都道府県の下記リストの項目を作成する。
+	 * ・自治体コード 
+	 * ・都道府県名 
+	 * ・市区名 
+	 * ・緯度(北緯)[60進数]
 	 * ・経度(東経)[60進数]
 	 * 
 	 * @param cols 都道府県配列
@@ -185,14 +192,15 @@ public class PrefService {
 		dms = dms.trim();
 
 		// DMS形式チェック
-		Pattern pattern = Pattern.compile("(\\d+)°(\\d+)′(\\d+)″");
+		Pattern pattern = Pattern.compile(DMS_FMT_PATTERN);
 		Matcher matcher = pattern.matcher(dms);
 		if (!matcher.matches()) {
 			Logger.warn(TRACE_ID, "AP-1002", CLASS_NAME, methodName, "DMS形式不正 dms=" + dms);
 			throw new IllegalArgumentException("DMS形式不正 dms=" + dms);
 		}
 
-		String[] parts = dms.replace(DMS_DEGRESS, " ").replace(DMS_MINUTES, " ").replace(DMS_SECONDS, "").trim().split("\\s+");
+		String[] parts = dms.replace(DMS_DEGRESS, " ").replace(DMS_MINUTES, " ").replace(DMS_SECONDS, "").trim()
+				.split("\\s+");
 
 		if (parts.length != 3) {
 			Logger.warn(TRACE_ID, "AP-1003", CLASS_NAME, methodName, "DMS分解結果不正 length=" + parts.length);

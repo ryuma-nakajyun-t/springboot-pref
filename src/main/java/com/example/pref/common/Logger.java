@@ -73,7 +73,6 @@ public final class Logger {
 	 * @param message    出力メッセージ
 	 */
 	public static void warn(String traceId, String messageId, String className, String methodName, String message) {
-
 		write(WARN, traceId, messageId, className, methodName, message, null);
 	}
 
@@ -89,7 +88,6 @@ public final class Logger {
 	 */
 	public static void error(String traceId, String messageId, String className, String methodName, String message,
 			Exception exception) {
-
 		write(ERROR, traceId, messageId, className, methodName, message, exception);
 	}
 

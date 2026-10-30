@@ -223,6 +223,7 @@ springboot-pref/
 - 参考書籍・サイト
   -  Spring Boot 3で始めるWebアプリケーション開発入門(基礎編): プログラミング初心者・Webプログラマになりたい人向け 超入門テキスト
   - [Java の double を素直な String にしたい、E 要らない](https://qiita.com/k_ui/items/840227f29848b3ad0fbf)
+    - double型の変換について
 
 ### memo
 ---
