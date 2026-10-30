@@ -22,7 +22,7 @@ public class PerfController {
 	public String hello(Model model) {
 
 		model.addAttribute("message", "Hello Pref!");
-		String filePath = System.getenv("DATA_DIR") + "/pref.csv";
+		String filePath = System.getenv("DATA_PREF_DIR") + "pref.csv";
 		List<Pref> prefList = prefService.createPrefList(filePath);
 		model.addAttribute("prefList", prefList);
 		return "index";
