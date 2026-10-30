@@ -192,7 +192,8 @@ public class PrefService {
 		dms = dms.trim();
 
 		// DMS形式チェック
-		Pattern pattern = Pattern.compile(DMS_FMT_PATTERN);
+//		Pattern pattern = Pattern.compile(DMS_FMT_PATTERN);
+		Pattern pattern = Pattern.compile("(\\d+)°(\\d+)′(\\d+)″");
 		Matcher matcher = pattern.matcher(dms);
 		if (!matcher.matches()) {
 			Logger.warn(TRACE_ID, "AP-1002", CLASS_NAME, methodName, "DMS形式不正 dms=" + dms);
