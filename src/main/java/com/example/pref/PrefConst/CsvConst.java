@@ -21,6 +21,6 @@ public final class CsvConst {
     // 経度(東経)[60進数]
     public static final int LONGITUDE = 4;
 
-    // csvカラム数
-    public static final int COLUMN_COUNT = 5;
+	// csvカラム数
+	public static final int COLUMN_COUNT = 5;
 }
