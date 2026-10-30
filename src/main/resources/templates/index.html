@@ -18,6 +18,8 @@
             <th>自治体コード</th>
             <th>都道府県名</th>
             <th>市区名</th>
+            <th>緯度(北緯)[60進数]</th>
+            <th>経度(東経)[60進数]</th>
             <th>緯度(北緯)[10進数]</th>
             <th>経度(東経)[10進数]</th>
         </tr>
@@ -25,8 +27,10 @@
             <td th:text="${pref.prefCode}"></td>
             <td th:text="${pref.prefName}"></td>
             <td th:text="${pref.cityName}"></td>
-            <td th:text="${pref.latitude}"></td>
-            <td th:text="${pref.longitude}"></td>
+            <td th:text="${pref.latitude_60}"></td>
+            <td th:text="${pref.longitude_60}"></td>
+            <td th:text="${pref.latitude_10}"></td>
+            <td th:text="${pref.longitude_10}"></td>
         </tr>
     </table>
 </body>

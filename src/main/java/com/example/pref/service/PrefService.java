@@ -160,11 +160,11 @@ public class PrefService {
         pref.setPrefName(cols[CsvConst.PREF_NAME]);// 都道府県名
         pref.setCityName(cols[CsvConst.CITY_NAME]);// 市区名
 
-        // pref.setLatitude( cols[CsvConst.LATITUDE]);// 緯度（北緯）[60進数]
-        pref.setLatitude(Double.toString(dmsToDecimal(cols[CsvConst.LATITUDE])));// 緯度（北緯）[10進数]
+        pref.setLatitude_60( cols[CsvConst.LATITUDE]);// 緯度（北緯）[60進数]
+        pref.setLatitude_10(Double.toString(dmsToDecimal(cols[CsvConst.LATITUDE])));// 緯度（北緯）[10進数]
 
-        // pref.setLongitude(cols[CsvConst.LONGITUDE]);// 経度（東経）[60進数]
-        pref.setLongitude(Double.toString(dmsToDecimal(cols[CsvConst.LONGITUDE])));// 緯度（北緯）[10進数]
+        pref.setLongitude_60(cols[CsvConst.LONGITUDE]);// 経度（東経）[60進数]
+        pref.setLongitude_10(Double.toString(dmsToDecimal(cols[CsvConst.LONGITUDE])));// 緯度（北緯）[10進数]
 
         return pref;
     }

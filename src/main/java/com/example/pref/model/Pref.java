@@ -12,48 +12,15 @@ public class Pref {
     private String cityName;
 
     // 緯度（北緯）[60進数]
-    private String latitude;
+    private String latitude_60;
 
     // 経度（東経）[60進数]
-    private String longitude;
+    private String longitude_60;
 
-    public String getPrefCode() {
-        return prefCode;
-    }
+    // 緯度（北緯）[10進数]
+    private String latitude_10;
 
-    public void setPrefCode(String prefCode) {
-        this.prefCode = prefCode;
-    }
+    // 経度（東経）[10進数]
+    private String longitude_10;
 
-    public String getPrefName() {
-        return prefName;
-    }
-
-    public void setPrefName(String prefName) {
-        this.prefName = prefName;
-    }
-
-    public String getCityName() {
-        return cityName;
-    }
-
-    public void setCityName(String cityName) {
-        this.cityName = cityName;
-    }
-
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
 }
